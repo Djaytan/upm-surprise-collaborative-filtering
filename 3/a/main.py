@@ -1,5 +1,5 @@
-from matplotlib import pyplot
 import numpy as np
+from matplotlib import pyplot
 from surprise import Dataset
 from surprise import KNNBasic
 from surprise.accuracy import mae
@@ -46,6 +46,15 @@ def get_top_n_predictions(u_predictions, n):
 
 
 def get_nb_true_positives(top_n_predictions):
+    """
+    Determines and returns the number of true positives in the predictions.
+    A true positive correspond to a recommended item which is embedded in the relevant elements for the
+    corresponding user. In easier words: in reality the item match with preferences of the user, so the recommendation
+    is interesting for him.
+
+    :param top_n_predictions: The top N predictions where the estimated rating is the highest.
+    :return: The number of true positives in the predictions.
+    """
     nb_true_positives = 0
     for prediction in top_n_predictions:
         if prediction.r_ui >= 4:
@@ -56,10 +65,10 @@ def get_nb_true_positives(top_n_predictions):
 def get_nb_relevant_elements(user_predictions):
     """
     Gets the number of relevant elements among all not-rating yet items.
-    We expect here that relevant elements are those rated with 4 or 5 stars.
+    We expect here that relevant elements are those rated with 4 or 5 stars by the user (r_ui field).
 
-    :param: User's predictions (which contains reels items' ratings).
-    :return: The number of relevant elements for recommendations.
+    :param user_predictions: The predictions for a user.
+    :return: The number of relevant elements for the user.
     """
     nb_relevant_elements = 0
     for user_prediction in user_predictions:
@@ -69,27 +78,40 @@ def get_nb_relevant_elements(user_predictions):
 
 
 def get_precision(top_n_predictions):
+    """
+    Calculates and returns the precision of the predictions.
+
+    :param top_n_predictions: The top N predictions where the estimated rating is the highest.
+    :return: The precision of the predictions.
+    """
     return get_nb_true_positives(top_n_predictions) / len(top_n_predictions)
 
 
 def get_recall(top_n_predictions, user_predictions):
+    """
+    Calculates and returns the recall of the predictions.
+
+    :param top_n_predictions: The top N predictions where the estimated rating is the highest.
+    :param user_predictions: The predictions for a user.
+    :return: The recall of the predictions.
+    """
     return get_nb_true_positives(top_n_predictions) / get_nb_relevant_elements(user_predictions)
 
 
 def get_f1(precision, recall):
     """
-    Gets F1 measure for evaluating recommendations by combining precision and recall ones together.
+    Gets F1 measure for evaluating predictions by combining precision and recall ones together.
 
-    :param precision: The precision of recommendations.
-    :param recall: The recall of recommendations.
+    :param precision: The precision of the predictions.
+    :param recall: The recall of the predictions.
     :return: The F1 measure according to the specified precision and recall values.
     """
     return (2 * precision * recall) / (precision + recall)
 
 
-def display_recommendations(top_predictions):
+def print_recommendations(top_predictions):
     """
-    Display recommendations for the user associated this specified top predictions. It is assume here that all
+    Prints recommendations for the user associated this specified top predictions. It is assume here that all
     predictions of array target the same user.
 
     :param top_predictions: The top predictions to display. The better prediction is assumed to be at
@@ -104,7 +126,14 @@ def display_recommendations(top_predictions):
             i = i + 1
 
 
-def display_recommendations_evaluation(precision, recall, f1):
+def print_recommendations_evaluation(precision, recall, f1):
+    """
+    Prints evaluation of the recommendations.
+
+    :param precision: The precision of the recommendations.
+    :param recall: The recall of the recommendations.
+    :param f1: The F1 measure of the recommendations.
+    """
     print("Evaluation of recommendations")
     print("Precision =", round(precision, 3))
     print("Recall =", round(recall, 3))
@@ -112,6 +141,14 @@ def display_recommendations_evaluation(precision, recall, f1):
 
 
 def plot_maes(k_list, maes):
+    """
+    Shows the curve plot which correspond the given axes.
+    The X-axis is associated to the arg "maes".
+    The Y-axis is associated to the arg "k_list".
+
+    :param k_list: The list of K where MAEs values are associated with them.
+    :param maes: The MAEs values of the corresponding K values.
+    """
     pyplot.plot(k_list, maes)
     pyplot.title('MAE evolution depending on K value')
     pyplot.xlabel('K nearest-neighbors')
@@ -226,12 +263,12 @@ def e3_knn(data):
 
     # Determine the top 10 items of user defined previously
     top_n_predictions = get_top_n_predictions(user_predictions, 10)
-    display_recommendations(top_n_predictions)
+    print_recommendations(top_n_predictions)
 
     precision = get_precision(top_n_predictions)
     recall = get_recall(top_n_predictions, user_predictions)
     f1 = get_f1(precision, recall)
-    display_recommendations_evaluation(precision, recall, f1)
+    print_recommendations_evaluation(precision, recall, f1)
 
 
 def main():
