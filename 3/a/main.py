@@ -1,5 +1,8 @@
+from matplotlib import pyplot
+import numpy as np
 from surprise import Dataset
 from surprise import KNNBasic
+from surprise.accuracy import mae
 from surprise.model_selection import train_test_split
 
 
@@ -49,6 +52,7 @@ def get_nb_true_positives(top_n_predictions):
             nb_true_positives = nb_true_positives + 1
     return nb_true_positives
 
+
 def get_nb_relevant_elements(user_predictions):
     """
     Gets the number of relevant elements among all not-rating yet items.
@@ -67,8 +71,10 @@ def get_nb_relevant_elements(user_predictions):
 def get_precision(top_n_predictions):
     return get_nb_true_positives(top_n_predictions) / len(top_n_predictions)
 
+
 def get_recall(top_n_predictions, user_predictions):
     return get_nb_true_positives(top_n_predictions) / get_nb_relevant_elements(user_predictions)
+
 
 def get_f1(precision, recall):
     """
@@ -79,6 +85,7 @@ def get_f1(precision, recall):
     :return: The F1 measure according to the specified precision and recall values.
     """
     return (2 * precision * recall) / (precision + recall)
+
 
 def display_recommendations(top_predictions):
     """
@@ -96,6 +103,7 @@ def display_recommendations(top_predictions):
             print("#{}: item {} estimated {:.2f}/5, reality {}/5".format(i, predict.iid, predict.est, predict.r_ui))
             i = i + 1
 
+
 def display_recommendations_evaluation(precision, recall, f1):
     print("Evaluation of recommendations")
     print("Precision =", round(precision, 3))
@@ -103,27 +111,109 @@ def display_recommendations_evaluation(precision, recall, f1):
     print("F1 =", round(f1, 3))
 
 
-def main():
-    #############
-    ### Setup ###
-    #############
+def plot_maes(k_list, maes):
+    pyplot.plot(k_list, maes)
+    pyplot.title('MAE evolution depending on K value')
+    pyplot.xlabel('K nearest-neighbors')
+    pyplot.ylabel('MAE')
+    pyplot.show()
 
-    # Load the movielens-100k dataset (download it if needed).
-    data = Dataset.load_builtin('ml-100k')
+
+def dichotomy_search_k(data, sim_options_knn):
+    # Split dataset in two ones: one for training, the other one to realize tests
+    # (to determine MAE or top-N items for example)
+    train_set, test_set = train_test_split(data, test_size=.25)
+
+    # Adjust range values according to the experience to realize
+    k_list = list(range(40, 100, 5))
+
+    # Store MAEs values to display them later
+    maes = []
+
+    for k in k_list:
+        algo = KNNBasic(k=k, sim_options=sim_options_knn)
+        predictions = algo.fit(train_set).test(test_set)
+        maes.append(mae(predictions))
+
+    plot_maes(k_list, maes)
+
+
+def probabilistic_analysis_search_k(data, sim_options_knn):
+    # Number of experiments (>= 30 to permit quantitative analysis)
+    n = 1
+
+    # We focus on the range of values of K where MAEs remain unstable
+    k_list = list(range(40, 80, 4))
+
+    # Matrix of MAEs values: row correspond to an experiment and column to a K value
+    # A way to read a cell: for the experiment n°X with K=Y the MAE value is equal to Z (the value of the cell)
+    m_maes = np.zeros((n, len(k_list)))
+
+    for i in range(0, n, 1):
+        # Split dataset in two ones: one for training, the other one to realize tests
+        # (to determine MAE or top-N items for example)
+        train_set, test_set = train_test_split(data, test_size=.25)
+
+        # Store MAEs values of the current experiment
+        maes = []
+
+        for k in k_list:
+            algo = KNNBasic(k=k, sim_options=sim_options_knn)
+            predictions = algo.fit(train_set).test(test_set)
+            maes.append(mae(predictions))
+
+        # Update the corresponding in the matrix of MAEs values
+        m_maes[i, :] = maes
+
+    # Best K information
+    best_k_index = -1
+    best_k_mae_value = 0
+
+    average_maes_per_k = np.zeros(len(k_list))
+
+    # Analyse MAEs values for each K and search the best one
+    for k_index in range(0, len(k_list), 1):
+        k_maes = m_maes[:, k_index]
+        average_maes = sum(k_maes) / len(k_maes)
+        average_maes_per_k[k_index] = average_maes
+        if k_index == 0 or average_maes < best_k_mae_value:
+            best_k_index = k_index
+            best_k_mae_value = average_maes
+        print("K={}, average MAEs={}".format(k_list[k_index], average_maes))
+
+    # Display the best value of K
+    if best_k_index >= 0:
+        best_k = 40 + best_k_index * 4
+        print("Best K: {}, average MAEs: {}".format(best_k, best_k_mae_value))
+    else:
+        print("No best K found")
+
+    # Plot a curve of average MAEs per K
+    plot_maes(k_list, average_maes_per_k)
+
+
+def e1_a_search_k(data):
+    # Use the "Pearson" similarity function for K-NN algorithm
+    sim_options_knn = {
+        'name': "pearson",
+        'user_based': True  # compute similarities between users
+    }
+
+    probabilistic_analysis_search_k(data, sim_options_knn)
+
+
+def e3_knn(data):
+    # Split dataset in two ones: one for training, the other one to realize tests
+    # (to determine MAE or top-N items for example)
+    train_set, test_set = train_test_split(data, test_size=.25)
+
+    # Use the "Pearson" similarity function for K-NN algorithm
     sim_options_knn = {
         'name': "pearson",
         'user_based': True  # compute similarities between users
     }
     k = 50  # number of nearest-neighbours for KNN algorithm
     uid = str(145)  # the raw ID of user to recommend items
-
-    ###################
-    ### Calculation ###
-    ###################
-
-    # Split dataset in two ones: one for training, the other one to realize tests
-    # (to determine MAE or top-N items for example)
-    train_set, test_set = train_test_split(data, test_size=.25)
 
     # Use KNN for predictions
     algo = KNNBasic(k=k, sim_options=sim_options_knn)
@@ -142,6 +232,13 @@ def main():
     recall = get_recall(top_n_predictions, user_predictions)
     f1 = get_f1(precision, recall)
     display_recommendations_evaluation(precision, recall, f1)
+
+
+def main():
+    # Load the movielens-100k dataset
+    data = Dataset.load_builtin('ml-100k')
+
+    e1_a_search_k(data)
 
 
 main()
