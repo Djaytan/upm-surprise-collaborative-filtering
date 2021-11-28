@@ -157,6 +157,13 @@ def plot_maes(k_list, maes):
 
 
 def dichotomy_search_k(data, sim_options_knn):
+    """
+    Permits to search the best K value which minimize the MAE value with the dichotomy approach.
+    The name of the method refer to the usage of the method more than its reel functioning.
+
+    :param data: The dataset used in experiments.
+    :param sim_options_knn: The options of the similarity function of the K-NN algorithm.
+    """
     # Split dataset in two ones: one for training, the other one to realize tests
     # (to determine MAE or top-N items for example)
     train_set, test_set = train_test_split(data, test_size=.25)
@@ -176,6 +183,12 @@ def dichotomy_search_k(data, sim_options_knn):
 
 
 def probabilistic_analysis_search_k(data, sim_options_knn):
+    """
+    Searches the best K value which minimize the MAE with probabilistic analysis approach.
+
+    :param data: The dataset used in experiments.
+    :param sim_options_knn: The options of the similarity function of the K-NN algorithm.
+    """
     # Number of experiments (>= 30 to permit quantitative analysis)
     n = 1
 
@@ -230,6 +243,11 @@ def probabilistic_analysis_search_k(data, sim_options_knn):
 
 
 def e1_a_search_k(data):
+    """
+    The exercise 1.a of the assignment.
+
+    :param data: The dataset used in experiments.
+    """
     # Use the "Pearson" similarity function for K-NN algorithm
     sim_options_knn = {
         'name': "pearson",
@@ -240,6 +258,11 @@ def e1_a_search_k(data):
 
 
 def e3_knn(data):
+    """
+    The exercise 3 of the assignment (specific to the K-NN algorithm).
+
+    :param data: The dataset used in experiments.
+    """
     # Split dataset in two ones: one for training, the other one to realize tests
     # (to determine MAE or top-N items for example)
     train_set, test_set = train_test_split(data, test_size=.25)
