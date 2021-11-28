@@ -42,6 +42,44 @@ def get_top_n_predictions(u_predictions, n):
     return top_predictions[0:n]
 
 
+def get_nb_true_positives(top_n_predictions):
+    nb_true_positives = 0
+    for prediction in top_n_predictions:
+        if prediction.r_ui >= 4:
+            nb_true_positives = nb_true_positives + 1
+    return nb_true_positives
+
+def get_nb_relevant_elements(user_predictions):
+    """
+    Gets the number of relevant elements among all not-rating yet items.
+    We expect here that relevant elements are those rated with 4 or 5 stars.
+
+    :param: User's predictions (which contains reels items' ratings).
+    :return: The number of relevant elements for recommendations.
+    """
+    nb_relevant_elements = 0
+    for user_prediction in user_predictions:
+        if user_prediction.r_ui >= 4:
+            nb_relevant_elements = nb_relevant_elements + 1
+    return nb_relevant_elements
+
+
+def get_precision(top_n_predictions):
+    return get_nb_true_positives(top_n_predictions) / len(top_n_predictions)
+
+def get_recall(top_n_predictions, user_predictions):
+    return get_nb_true_positives(top_n_predictions) / get_nb_relevant_elements(user_predictions)
+
+def get_f1(precision, recall):
+    """
+    Gets F1 measure for evaluating recommendations by combining precision and recall ones together.
+
+    :param precision: The precision of recommendations.
+    :param recall: The recall of recommendations.
+    :return: The F1 measure according to the specified precision and recall values.
+    """
+    return (2 * precision * recall) / (precision + recall)
+
 def display_recommendations(top_predictions):
     """
     Display recommendations for the user associated this specified top predictions. It is assume here that all
@@ -57,6 +95,12 @@ def display_recommendations(top_predictions):
         for predict in top_predictions:
             print("#{}: item {} estimated {:.2f}/5, reality {}/5".format(i, predict.iid, predict.est, predict.r_ui))
             i = i + 1
+
+def display_recommendations_evaluation(precision, recall, f1):
+    print("Evaluation of recommendations")
+    print("Precision =", round(precision, 3))
+    print("Recall =", round(recall, 3))
+    print("F1 =", round(f1, 3))
 
 
 def main():
@@ -93,6 +137,11 @@ def main():
     # Determine the top 10 items of user defined previously
     top_n_predictions = get_top_n_predictions(user_predictions, 10)
     display_recommendations(top_n_predictions)
+
+    precision = get_precision(top_n_predictions)
+    recall = get_recall(top_n_predictions, user_predictions)
+    f1 = get_f1(precision, recall)
+    display_recommendations_evaluation(precision, recall, f1)
 
 
 main()
