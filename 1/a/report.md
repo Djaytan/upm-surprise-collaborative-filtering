@@ -10,6 +10,12 @@ Of course, according to algorithms used, the results can vary.
 To realize this, we setup this program:
 
 ```python
+from matplotlib import pyplot
+from surprise import Dataset
+from surprise import KNNBasic
+from surprise.accuracy import mae
+from surprise.model_selection import train_test_split
+
 data = Dataset.load_builtin('ml-100k')
 
 sim_options_KNN = {'name': "pearson",
@@ -62,4 +68,16 @@ Anyway, let's say K=50 is the highest value
 ![img.png](img/img-7.png)
 
 ![img.png](img/img-8.png)
+
+![img.png](img/img-9.png)
+![img.png](img/img-10.png)
+K >= 50, MAE is no longer stable
+
+![img.png](img/img-11.png)
+![img.png](img/img-12.png)
+Between 40-50 with step of 1 => 50 should be the best K value
+
+So K = 50
+
+
 

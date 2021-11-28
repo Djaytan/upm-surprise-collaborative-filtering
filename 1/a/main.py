@@ -11,7 +11,7 @@ sim_options_KNN = {'name': "pearson",
                    'user_based': True  # compute similarities between users
                    }
 # number of neighbors
-k_list = list(range(40, 100, 10))
+k_list = list(range(40, 50, 1))
 print(len(k_list))
 maes = []
 trainset, testset = train_test_split(data, test_size=.25)
