@@ -399,3 +399,6 @@ We can see that curves diverge for K in [50:70].
 
 Finally, we conclude that it is hard to determine the exact best value of K. But we can say with a great precision that
 the value is located between 50 and 70.
+
+Another possible value of K can be 80 if we decide to wait until MAE values remain stable. This can be valid because
+in case of K in [50:70] MAE values are not always the lowest depending on the execution.
