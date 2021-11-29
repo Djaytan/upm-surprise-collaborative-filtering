@@ -21,3 +21,14 @@ predictions = algo.test(testset)
 # Then compute RMSE
 evaluate_recommendations_users(predictions)
 ```
+
+In this case the SVD algorithm produced similar results which can be seen in the following plots:
+
+Precision:  
+![img.png](img/Figure_1.png)
+
+Recall:  
+![img.png](img/Figure_recall.png)
+
+F1:  
+![img.png](img/Figure_F1.png)
