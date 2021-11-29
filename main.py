@@ -22,7 +22,7 @@ def plot_maes(k_list, maes):
     pyplot.show()
 
 
-def dichotomy_search_k(data, sim_options_knn):
+def dichotomy_search_k(data, sim_options_knn, test_size):
     """
     Permits to search the best K value which minimize the MAE value with the dichotomy approach.
     The name of the method refer to the usage of the method more than its reel functioning.
@@ -32,10 +32,10 @@ def dichotomy_search_k(data, sim_options_knn):
     """
     # Split dataset in two ones: one for training, the other one to realize tests
     # (to determine MAE or top-N items for example)
-    train_set, test_set = train_test_split(data, test_size=.25)
+    train_set, test_set = train_test_split(data, test_size=test_size)
 
     # Adjust range values according to the experience to realize
-    k_list = list(range(40, 100, 5))
+    k_list = list(range(50, 100, 10))
 
     # Store MAEs values to display them later
     maes = []
@@ -48,7 +48,7 @@ def dichotomy_search_k(data, sim_options_knn):
     plot_maes(k_list, maes)
 
 
-def probabilistic_analysis_search_k(data, sim_options_knn):
+def probabilistic_analysis_search_k(data, sim_options_knn, test_size):
     """
     Searches the best K value which minimize the MAE with probabilistic analysis approach.
 
@@ -59,7 +59,7 @@ def probabilistic_analysis_search_k(data, sim_options_knn):
     n = 1
 
     # We focus on the range of values of K where MAEs remain unstable
-    k_list = list(range(40, 80, 4))
+    k_list = list(range(40, 200, 1))
 
     # Matrix of MAEs values: row correspond to an experiment and column to a K value
     # A way to read a cell: for the experiment n°X with K=Y the MAE value is equal to Z (the value of the cell)
@@ -68,7 +68,7 @@ def probabilistic_analysis_search_k(data, sim_options_knn):
     for i in range(0, n, 1):
         # Split dataset in two ones: one for training, the other one to realize tests
         # (to determine MAE or top-N items for example)
-        train_set, test_set = train_test_split(data, test_size=.25)
+        train_set, test_set = train_test_split(data, test_size=test_size)
 
         # Store MAEs values of the current experiment
         maes = []
@@ -108,7 +108,7 @@ def probabilistic_analysis_search_k(data, sim_options_knn):
     plot_maes(k_list, average_maes_per_k)
 
 
-def e1_a_search_k(data):
+def e1_search_k(data):
     """
     The exercise 1.a of the assignment.
 
@@ -120,7 +120,7 @@ def e1_a_search_k(data):
         'user_based': True  # compute similarities between users
     }
 
-    probabilistic_analysis_search_k(data, sim_options_knn)
+    probabilistic_analysis_search_k(data, sim_options_knn, .25)
 
 
 def get_user_predictions(predictions, raw_user_id):
@@ -278,7 +278,8 @@ def evaluate_recommendations_users(predictions):
     nb_users = len(raw_users_ids)
 
     # Range of N values to use for experiments
-    n_list = list(range(10, 101, 1))
+    max_n = 100
+    n_list = list(range(10, max_n + 1, 1))
 
     # For each N value we store the average value of precision, recall and F1 in order to plot these values
     precisions_over_n = np.empty(0)
@@ -287,6 +288,8 @@ def evaluate_recommendations_users(predictions):
 
     # Experiments evaluation of recommendations over different values of N
     for n_top_items in n_list:
+        print("N={}/{}".format(n_top_items, max_n))
+
         # Store precisions, recalls and F1s values for all recommendations of the users
         precisions = np.empty(0)
         recalls = np.empty(0)
@@ -370,7 +373,7 @@ def main():
     # Load the movielens-100k dataset
     data = Dataset.load_builtin('ml-100k')
 
-    e3_knn(data)
+    e1_search_k(data)
 
 
 main()
