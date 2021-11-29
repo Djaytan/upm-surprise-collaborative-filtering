@@ -123,7 +123,7 @@ def e1_search_k(data):
         'user_based': True  # compute similarities between users
     }
 
-    probabilistic_analysis_search_k(data, sim_options_knn, .25)
+    probabilistic_analysis_search_k(data, sim_options_knn, .75)
 
 
 def get_user_predictions(predictions, raw_user_id):
