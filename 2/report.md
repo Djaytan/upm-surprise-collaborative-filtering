@@ -38,7 +38,7 @@ pyplot.show()
 ```
 
 and the result is plotted into the following bar chart.
-![img.png](img/Firgure_1.png)
+![img.png](img/Figure_1.png)
 
 The exact values are 0.7439 at .25 sparcity and 0.7721 at .75 sparcity.
 The lowest MAE that was reached at .75 sparcity and a value of 60 for k using the K-nn algorithm was 0.80536 
