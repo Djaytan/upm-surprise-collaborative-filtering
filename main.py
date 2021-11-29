@@ -2,8 +2,11 @@ import numpy as np
 from matplotlib import pyplot
 from surprise import Dataset
 from surprise import KNNBasic
+from surprise import SVD
 from surprise.accuracy import mae
+from surprise import accuracy
 from surprise.model_selection import train_test_split
+
 
 
 def plot_maes(k_list, maes):
@@ -311,6 +314,7 @@ def evaluate_recommendations_users(predictions):
             precisions = np.append(precisions, precision)
             recalls = np.append(recalls, recall)
             f1s = np.append(f1s, f1)
+            print(raw_user_id)
 
         # Calculate average precision, recall and F1 for the current value of N
         average_precision = sum(precisions) / nb_users
@@ -368,12 +372,35 @@ def e3_knn(data):
     # Evaluate recommendations for all users with with precision, recall and F1
     evaluate_recommendations_users(predictions)
 
+def e3_svd(data):
+
+    """
+    The exercise 3 of the assignment (specific to the SVD algorithm)
+    :param data: The dataset used in experiments
+    :return:
+    """
+
+    # sample random trainset and testset
+    # test set is made of 25% of the ratings.
+    trainset, testset = train_test_split(data, test_size=.25)
+
+    # We'll use the famous SVD algorithm.
+    algo = SVD()
+
+    # Train the algorithm on the trainset, and predict ratings for the testset
+    algo.fit(trainset)
+    predictions = algo.test(testset)
+
+    # Then compute RMSE
+    evaluate_recommendations_users(predictions)
 
 def main():
     # Load the movielens-100k dataset
     data = Dataset.load_builtin('ml-100k')
 
     e1_search_k(data)
+    e3_knn(data)
+    e3_svd(data)
 
 
 main()
