@@ -60,9 +60,6 @@ Now, we just need to change k_list in order to find the sought K-value for the g
 
 ***Note:** for the following experiments, we use the dichotomy approach (manually executed) to determine the K value.*
 
-***Note 2:** we realize after experiments that the use of histogram would have been preferable for discrete values.
-Anyway, results still exploitable, so we don't made change.*
-
 We can try with `k_list = list(range(10, 10000, 1000))` as a first try, we see the following result:  
 ![img.png](img/img-1.png)
 
