@@ -26,48 +26,31 @@ def plot_maes(k_list, maes):
     pyplot.show()
 
 
-def dichotomy_search_k(data, sim_options_knn, test_size):
-    """
-    Permits to search the best K value which minimize the MAE value with the dichotomy approach.
-    The name of the method refer to the usage of the method more than its reel functioning.
-
-    :param data: The dataset used in experiments.
-    :param sim_options_knn: The options of the similarity function of the K-NN algorithm.
-    """
-    # Split dataset in two ones: one for training, the other one to realize tests
-    # (to determine MAE or top-N items for example)
-    train_set, test_set = train_test_split(data, test_size=test_size)
-
-    # Adjust range values according to the experience to realize
-    k_list = list(range(50, 100, 10))
-
-    # Store MAEs values to display them later
-    maes = []
-
-    for k in k_list:
-        algo = KNNBasic(k=k, sim_options=sim_options_knn)
-        predictions = algo.fit(train_set).test(test_set)
-        maes.append(mae(predictions))
-
-    plot_maes(k_list, maes)
-
-
-def probabilistic_analysis_search_k(data, sim_options_knn, test_size):
+def probabilistic_analysis_search_k(data, sim_options_knn, test_size, start_k, end_k, step_k, nb_analysis):
     """
     Searches the best K value which minimize the MAE with probabilistic analysis approach.
 
     :param data: The dataset used in experiments.
     :param sim_options_knn: The options of the similarity function of the K-NN algorithm.
+    :param test_size: The size of the test_set (value between 0 and 1).
+    :param start_k: The initial K value to use in the analysis.
+    :param end_k: The end K value to use in the analysis (excluded).
+    :param step_k: The number to increase the K value after each iteration.
+    :param nb_analysis: The number of analysis to increase quality of probabilistic analysis.
     """
     # Number of experiments (>= 30 to permit quantitative analysis)
-    n = 1
+    n = nb_analysis
 
     # We focus on the range of values of K where MAEs remain unstable
-    k_list = list(range(40, 200, 1))
+    k_list = list(range(start_k, end_k, step_k))
+    nb_k = len(k_list)
+    print("Probabilistic analysis: N={}, start_k={}, end_k={}, step_k={} ({} values of K tested)".format(n, start_k,
+                                                                                                         end_k, step_k,
+                                                                                                         nb_k))
 
     # Matrix of MAEs values: row correspond to an experiment and column to a K value
     # A way to read a cell: for the experiment n°X with K=Y the MAE value is equal to Z (the value of the cell)
-    m_maes = np.zeros((n, len(k_list)))
+    m_maes = np.zeros((n, nb_k))
 
     for i in range(0, n, 1):
         # Split dataset in two ones: one for training, the other one to realize tests
@@ -78,9 +61,11 @@ def probabilistic_analysis_search_k(data, sim_options_knn, test_size):
         maes = []
 
         for k in k_list:
-            algo = KNNBasic(k=k, sim_options=sim_options_knn)
+            algo = KNNBasic(k=k, sim_options=sim_options_knn, verbose=False)
             predictions = algo.fit(train_set).test(test_set)
-            maes.append(mae(predictions))
+            mae_value = mae(predictions, verbose=False)
+            print("N={}, K={}, MAE={}".format(n, k, mae_value))
+            maes.append(mae_value)
 
         # Update the corresponding in the matrix of MAEs values
         m_maes[i, :] = maes
@@ -89,10 +74,10 @@ def probabilistic_analysis_search_k(data, sim_options_knn, test_size):
     best_k_index = -1
     best_k_mae_value = 0
 
-    average_maes_per_k = np.zeros(len(k_list))
+    average_maes_per_k = np.zeros(nb_k)
 
     # Analyse MAEs values for each K and search the best one
-    for k_index in range(0, len(k_list), 1):
+    for k_index in range(0, nb_k, 1):
         k_maes = m_maes[:, k_index]
         average_maes = sum(k_maes) / len(k_maes)
         average_maes_per_k[k_index] = average_maes
@@ -112,11 +97,16 @@ def probabilistic_analysis_search_k(data, sim_options_knn, test_size):
     plot_maes(k_list, average_maes_per_k)
 
 
-def e1_search_k(data, test_size):
+def e1_search_k(data, test_size, start_k, end_k, step_k, nb_analysis):
     """
     The exercise 1.a of the assignment.
 
     :param data: The dataset used in experiments.
+    :param test_size: The size of the test_set (value between 0 and 1).
+    :param start_k: The initial K value to use in the analysis.
+    :param end_k: The end K value to use in the analysis (excluded).
+    :param step_k: The number to increase the K value after each iteration.
+    :param nb_analysis: The number of analysis to increase quality of probabilistic analysis.
     """
     # Use the "Pearson" similarity function for K-NN algorithm
     sim_options_knn = {
@@ -124,7 +114,7 @@ def e1_search_k(data, test_size):
         'user_based': True  # compute similarities between users
     }
 
-    probabilistic_analysis_search_k(data, sim_options_knn, test_size)
+    probabilistic_analysis_search_k(data, sim_options_knn, test_size, start_k, end_k, step_k, nb_analysis)
 
 
 def get_user_predictions(predictions, raw_user_id):
@@ -348,30 +338,30 @@ def evaluate_recommendations_users(predictions):
 
 
 def runSVD(data, _testSize):
-    # sample random trainset and testset
+    # sample random train_set and test_set
     # test set is made of 25% of the ratings.
-    trainset, testset = train_test_split(data, test_size=_testSize)
+    train_set, test_set = train_test_split(data, test_size=_testSize)
 
     # We'll use the famous SVD algorithm.
     algo = SVD()
 
-    # Train the algorithm on the trainset, and predict ratings for the testset
-    algo.fit(trainset)
-    predictions = algo.test(testset)
+    # Train the algorithm on the train_set, and predict ratings for the test_set
+    algo.fit(train_set)
+    predictions = algo.test(test_set)
 
     return mae(predictions)
 
 
-def runKNN_GetMae(data, _testSize):
+def runKNN_GetMae(data, test_size):
     # Use the "Pearson" similarity function for K-NN algorithm
     sim_options_knn = {
         'name': "pearson",
         'user_based': True  # compute similarities between users
     }
-    trainset, testset = train_test_split(data, test_size=_testSize)
+    train_set, test_set = train_test_split(data, test_size=test_size)
 
-    algo = KNNBasic(k=60, sim_options=sim_options_knn)
-    predictions = algo.fit(trainset).test(testset)
+    algo = KNNBasic(k=60, sim_options=sim_options_knn, verbose=False)
+    predictions = algo.fit(train_set).test(test_set)
     return mae(predictions)
 
 
@@ -404,7 +394,7 @@ def e3_knn(data):
     k = 60  # Number of nearest-neighbours for KNN algorithm
 
     # Use KNN for predictions
-    algo = KNNBasic(k=k, sim_options=sim_options_knn)
+    algo = KNNBasic(k=k, sim_options=sim_options_knn, verbose=False)
 
     # Train the algo and then create predictions from test dataset defined previously
     predictions = algo.fit(train_set).test(test_set)
@@ -465,12 +455,20 @@ def main():
     data = Dataset.load_builtin('ml-100k')
 
     if args[0] == "e1":
-        if args[1] == ".25":
-            e1_search_k(data, .25)
-        if args[1] == ".75":
-            e1_search_k(data, .75)
+        if len(args) == 6:
+            start_k = int(args[2])
+            end_k = int(args[3])
+            step_k = int(args[4])
+            nb_analysis = int(args[5])
+            if args[1] == ".25":
+                e1_search_k(data, .25, start_k, end_k, step_k, nb_analysis)
+            if args[1] == ".75":
+                e1_search_k(data, .75, start_k, end_k, step_k, nb_analysis)
+            else:
+                print("Provide testsize .25 or .75 as 2nd argument")
         else:
-            print("Provide testsize .25 or .75 as 2nd argument")
+            print(
+                "For exercise 1: 5 arguments expected: test_set_size, start_k, end_k, step_k and nb_analysis (in this order)")
     if args[0] == "compare":
         print("Running comparison of SVD and KNN algorithms")
         compareSVDtoKNNWithOptimalK(data)
