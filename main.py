@@ -1,5 +1,6 @@
 import getopt
 import sys
+
 import numpy as np
 from matplotlib import pyplot
 from surprise import Dataset
@@ -345,6 +346,7 @@ def evaluate_recommendations_users(predictions):
     pyplot.ylabel('F1s of recommendations')
     pyplot.show()
 
+
 def runSVD(data, _testSize):
     # sample random trainset and testset
     # test set is made of 25% of the ratings.
@@ -358,6 +360,7 @@ def runSVD(data, _testSize):
     predictions = algo.test(testset)
 
     return mae(predictions)
+
 
 def runKNN_GetMae(data, _testSize):
     # Use the "Pearson" similarity function for K-NN algorithm
@@ -381,6 +384,7 @@ def e2_svd(data):
 
     pyplot.bar(barX, barY)
     pyplot.show()
+
 
 def e3_knn(data):
     """
@@ -429,8 +433,10 @@ def e3_svd(data):
     # Evaluate recommendations for all users with with precision, recall and F1
     evaluate_recommendations_users(predictions)
 
+
 def compareSVDtoKNNWithOptimalK(data):
-    barX = ["SVD at 25% Sparcity", "SVD at 75% Sparcity", "KNN at 25% Sparcity with k=60", "KNN at 75% Sparcity with k=60"]
+    barX = ["SVD at 25% Sparcity", "SVD at 75% Sparcity", "KNN at 25% Sparcity with k=60",
+            "KNN at 75% Sparcity with k=60"]
     barY = []
 
     barY.append(runSVD(data, .25))
@@ -444,8 +450,8 @@ def compareSVDtoKNNWithOptimalK(data):
 
     pyplot.show()
 
-def main():
 
+def main():
     argv = sys.argv[1:]
     try:
         opts, args = getopt.getopt(argv, 'hm:d', ['help', 'my_file='])
@@ -458,24 +464,25 @@ def main():
     # Load the movielens-100k dataset
     data = Dataset.load_builtin('ml-100k')
 
-    if(args[0] == "e1"):
-        if (args [1] == ".25"):
-            e1_search_k(data, .25 )
-        if(args[1] == ".75"):
+    if args[0] == "e1":
+        if args[1] == ".25":
+            e1_search_k(data, .25)
+        if args[1] == ".75":
             e1_search_k(data, .75)
         else:
             print("Provide testsize .25 or .75 as 2nd argument")
-    if (args[0] == "compare"):
+    if args[0] == "compare":
         print("Running comparison of SVD and KNN algorithms")
         compareSVDtoKNNWithOptimalK(data)
-    if (args[0] == "e2"):
+    if args[0] == "e2":
         e2_svd(data)
-    if(args[0] == "e3"):
-        if(args[1] == "KNN"):
+    if args[0] == "e3":
+        if args[1] == "KNN":
             e3_knn(data)
-        if(args[1] == "SVD"):
+        if args[1] == "SVD":
             e3_svd(data)
         else:
             print("provide as second arg KNN or SVD")
+
 
 main()
