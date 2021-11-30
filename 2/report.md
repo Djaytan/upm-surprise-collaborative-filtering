@@ -38,8 +38,19 @@ pyplot.show()
 ```
 
 and the result is plotted into the following bar chart.  
-![img.png](img/Figure_1.png)  
+![img.png](img/img-1.png)
 
-The exact values are 0.7439 at .25 sparcity and 0.7721 at .75 sparcity. The lowest MAE that was reached at .75 sparcity
-and a value of 60 for k using the K-nn algorithm was 0.80536 This proves that the SVD algorithm is able to mitigate the
-sparcity problem and produce better results.
+The exact values are 0.7439 at .25 test set size and 0.7721 at .75 test set size. The lowest MAE that was reached at .75
+test set size and a value of 60 for k using the K-nn algorithm was 0.80536 This proves that the SVD algorithm is able to
+mitigate the sparcity problem and produce better results.
+
+## Comparison KNN and SVD
+
+Comparison executed twice:
+
+![img.png](img/img-2.png)
+![img.png](img/img-3.png)
+
+We can see that SVD provide the lowest values for MAE. So, SVD is better than KNN for this dataset even with sparsity
+problem.
+

@@ -469,11 +469,12 @@ def main():
         else:
             print(
                 "For exercise 1: 5 arguments expected: test_set_size, start_k, end_k, step_k and nb_analysis (in this order)")
-    if args[0] == "compare":
-        print("Running comparison of SVD and KNN algorithms")
-        compareSVDtoKNNWithOptimalK(data)
     if args[0] == "e2":
-        e2_svd(data)
+        if args[1] == "compare":
+            print("Running comparison of SVD and KNN algorithms")
+            compareSVDtoKNNWithOptimalK(data)
+        else:
+            e2_svd(data)
     if args[0] == "e3":
         if args[1] == "KNN":
             e3_knn(data)

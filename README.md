@@ -31,7 +31,7 @@ This command calculates and plots the optimal value for k with a size of 75% for
 
 The Command for exercise 2 is ```python3 main.py e2```
 
-To compare the MAE values of SVD and KNN run the command ```python3 main.py compare```
+To compare the MAE values of SVD and KNN run the command ```python3 main.py e2 compare```
 
 ## Exercise 3
 
