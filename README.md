@@ -2,6 +2,11 @@
 
 Program is run by executing ```python3 main.py [arg1 [arg2 ...]]```
 
+## Review reports
+
+Consult the GitHub page of the project if you don't have Markdown
+interpreter: https://github.com/Voltariuss/upm-surprise-collaborative-filtering
+
 ## Prerequisite
 
 * Numpy
