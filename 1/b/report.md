@@ -26,3 +26,7 @@ Next experiment with `k_list = list(range(50, 200, 2))`:
 
 We see that K seems to be in [50:70] like in the exercise 1.a. So, we can make our conclusion now: the value of K seems
 to remain the same as for the previous exercise.
+
+## Comparison between 25% and 75% of missing data
+
+

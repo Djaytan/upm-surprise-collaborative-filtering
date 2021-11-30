@@ -1,12 +1,12 @@
-2
-. Mitigation of sparsity problem: show how SVD (Funk variant) can provide a better MAE than user-based K-NN using the provided data set.
+2 . Mitigation of sparsity problem: show how SVD (Funk variant) can provide a better MAE than user-based K-NN using the
+provided data set.
 
-For this experiment we want to show that the SVD algorithm can produce better results with a lower MAE.
-For this we run the algorithm once with .25 sparcity and once with .75 sparcity.
+For this experiment we want to show that the SVD algorithm can produce better results with a lower MAE. For this we run
+the algorithm once with .25 sparcity and once with .75 sparcity.
 
 The following function executes this experiment
 
-```
+```python
 def runSVD(data, _testSize):
     # sample random trainset and testset
     # test set is made of 25% of the ratings.
@@ -24,7 +24,7 @@ def runSVD(data, _testSize):
 
 This function is run twice we can see in the following code snippet
 
-```
+```python
 barX = ["25% Sparcity", "75% Sparcity"]
 barY = []
 
@@ -37,9 +37,9 @@ pyplot.bar(barX, barY)
 pyplot.show()
 ```
 
-and the result is plotted into the following bar chart.
-![img.png](img/Figure_1.png)
+and the result is plotted into the following bar chart.  
+![img.png](img/Figure_1.png)  
 
-The exact values are 0.7439 at .25 sparcity and 0.7721 at .75 sparcity.
-The lowest MAE that was reached at .75 sparcity and a value of 60 for k using the K-nn algorithm was 0.80536 
-This proves that the SVD algorithm is able to mitigate the sparcity problem and produce better results.
+The exact values are 0.7439 at .25 sparcity and 0.7721 at .75 sparcity. The lowest MAE that was reached at .75 sparcity
+and a value of 60 for k using the K-nn algorithm was 0.80536 This proves that the SVD algorithm is able to mitigate the
+sparcity problem and produce better results.

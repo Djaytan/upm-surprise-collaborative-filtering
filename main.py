@@ -6,9 +6,7 @@ from surprise import Dataset
 from surprise import KNNBasic
 from surprise import SVD
 from surprise.accuracy import mae
-from surprise import accuracy
 from surprise.model_selection import train_test_split
-
 
 
 def plot_maes(k_list, maes):
@@ -410,26 +408,25 @@ def e3_knn(data):
     # Evaluate recommendations for all users with with precision, recall and F1
     evaluate_recommendations_users(predictions)
 
+
 def e3_svd(data):
-
     """
-    The exercise 3 of the assignment (specific to the SVD algorithm)
-    :param data: The dataset used in experiments
-    :return:
+    The exercise 3 of the assignment (specific to the SVD algorithm).
+
+    :param data: The dataset used in experiments.
     """
 
-    # sample random trainset and testset
+    # sample random train_set and test_set
     # test set is made of 25% of the ratings.
-    trainset, testset = train_test_split(data, test_size=.25)
+    train_set, test_set = train_test_split(data, test_size=.25)
 
     # We'll use the famous SVD algorithm.
     algo = SVD()
 
-    # Train the algorithm on the trainset, and predict ratings for the testset
-    algo.fit(trainset)
-    predictions = algo.test(testset)
+    # Train the algo and then create predictions from test dataset defined previously
+    predictions = algo.fit(train_set).test(test_set)
 
-    # Then compute RMSE
+    # Evaluate recommendations for all users with with precision, recall and F1
     evaluate_recommendations_users(predictions)
 
 def compareSVDtoKNNWithOptimalK(data):
