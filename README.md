@@ -2,6 +2,12 @@
 
 Program is run by executing ```python3 main.py [arg1 [arg2 ...]]```
 
+## Prerequisite
+
+* Numpy
+* MatPlotLib
+* Surprise
+
 ## Exercise 1
 
 Parameters of command:
