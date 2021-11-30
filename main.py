@@ -1,3 +1,5 @@
+import getopt
+import sys
 import numpy as np
 from matplotlib import pyplot
 from surprise import Dataset
@@ -111,7 +113,7 @@ def probabilistic_analysis_search_k(data, sim_options_knn, test_size):
     plot_maes(k_list, average_maes_per_k)
 
 
-def e1_search_k(data):
+def e1_search_k(data, test_size):
     """
     The exercise 1.a of the assignment.
 
@@ -123,7 +125,7 @@ def e1_search_k(data):
         'user_based': True  # compute similarities between users
     }
 
-    probabilistic_analysis_search_k(data, sim_options_knn, .75)
+    probabilistic_analysis_search_k(data, sim_options_knn, test_size)
 
 
 def get_user_predictions(predictions, raw_user_id):
@@ -345,6 +347,42 @@ def evaluate_recommendations_users(predictions):
     pyplot.ylabel('F1s of recommendations')
     pyplot.show()
 
+def runSVD(data, _testSize):
+    # sample random trainset and testset
+    # test set is made of 25% of the ratings.
+    trainset, testset = train_test_split(data, test_size=_testSize)
+
+    # We'll use the famous SVD algorithm.
+    algo = SVD()
+
+    # Train the algorithm on the trainset, and predict ratings for the testset
+    algo.fit(trainset)
+    predictions = algo.test(testset)
+
+    return mae(predictions)
+
+def runKNN_GetMae(data, _testSize):
+    # Use the "Pearson" similarity function for K-NN algorithm
+    sim_options_knn = {
+        'name': "pearson",
+        'user_based': True  # compute similarities between users
+    }
+    trainset, testset = train_test_split(data, test_size=_testSize)
+
+    algo = KNNBasic(k=60, sim_options=sim_options_knn)
+    predictions = algo.fit(trainset).test(testset)
+    return mae(predictions)
+
+
+def e2_svd(data):
+    barX = ["25% Sparcity", "75% Sparcity"]
+    barY = []
+
+    barY.append(runSVD(data, .25))
+    barY.append(runSVD(data, .75))
+
+    pyplot.bar(barX, barY)
+    pyplot.show()
 
 def e3_knn(data):
     """
@@ -394,13 +432,53 @@ def e3_svd(data):
     # Then compute RMSE
     evaluate_recommendations_users(predictions)
 
+def compareSVDtoKNNWithOptimalK(data):
+    barX = ["SVD at 25% Sparcity", "SVD at 75% Sparcity", "KNN at 25% Sparcity with k=60", "KNN at 75% Sparcity with k=60"]
+    barY = []
+
+    barY.append(runSVD(data, .25))
+    barY.append(runSVD(data, .75))
+
+    barY.append(runKNN_GetMae(data, .25))
+    barY.append(runKNN_GetMae(data, .75))
+    pyplot.figure(figsize=(15, 5))
+    pyplot.ylabel('MAE')
+    pyplot.bar(barX, barY)
+
+    pyplot.show()
+
 def main():
+
+    argv = sys.argv[1:]
+    try:
+        opts, args = getopt.getopt(argv, 'hm:d', ['help', 'my_file='])
+        print(args)
+    except getopt.GetoptError:
+        # Print a message or do something useful
+        print('Something went wrong!')
+        sys.exit(2)
+
     # Load the movielens-100k dataset
     data = Dataset.load_builtin('ml-100k')
 
-    e1_search_k(data)
-    e3_knn(data)
-    e3_svd(data)
-
+    if(args[0] == "e1"):
+        if (args [1] == ".25"):
+            e1_search_k(data, .25 )
+        if(args[1] == ".75"):
+            e1_search_k(data, .75)
+        else:
+            print("Provide testsize .25 or .75 as 2nd argument")
+    if (args[0] == "compare"):
+        print("Running comparison of SVD and KNN algorithms")
+        compareSVDtoKNNWithOptimalK(data)
+    if (args[0] == "e2"):
+        e2_svd(data)
+    if(args[0] == "e3"):
+        if(args[1] == "KNN"):
+            e3_knn(data)
+        if(args[1] == "SVD"):
+            e3_svd(data)
+        else:
+            print("provide as second arg KNN or SVD")
 
 main()
